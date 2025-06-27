@@ -22,12 +22,12 @@ const {
 // LOGIN
 // ----------------------
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   try {
     const response = await axios.post(`https://${AUTH0_DOMAIN}/oauth/token`, {
       grant_type: 'password',
-      username: email,
+      username,
       password,
       audience: AUTH0_AUDIENCE,
       client_id: AUTH0_CLIENT_ID,
