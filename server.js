@@ -9,6 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
 
 const {
   AUTH0_DOMAIN,
@@ -23,6 +24,10 @@ const {
 // ----------------------
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
+  console.log('====================================');
+  console.log(username);
+  console.log(password);
+  console.log('====================================');
 
   try {
     const response = await axios.post(`https://${AUTH0_DOMAIN}/oauth/token`, {
