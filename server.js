@@ -135,6 +135,10 @@ app.post('/validate-token', (req, res) => {
       algorithms: ['RS256']
     },
     (err, decoded) => {
+      console.log('====================================');
+      console.log('err ---> ', err);
+      console.log('decoded ---> ', decoded);
+      console.log('====================================');
       if (err) return res.status(401).json({ valid: false, error: err.message });
       res.json({ valid: true, decoded });
     }
