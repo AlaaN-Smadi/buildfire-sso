@@ -8,6 +8,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -38,7 +39,7 @@ app.post('/login', async (req, res) => {
       client_id: AUTH0_CLIENT_ID,
       client_secret: AUTH0_CLIENT_SECRET,
       scope: 'openid profile email',
-	 "realm": "Username-Password-Authentication" 
+      "realm": "Username-Password-Authentication"
     });
 
     res.json({
@@ -61,15 +62,31 @@ app.post('/register', async (req, res) => {
     const response = await axios.post(`https://${AUTH0_DOMAIN}/dbconnections/signup`, {
       client_id: AUTH0_CLIENT_ID,
       username,
-	 email,
+      email,
       password,
       connection: AUTH0_CONNECTION
     });
-
-    res.json({ message: 'User registered', user: response.data });
+    
+    axios.post('https://buildfire-sso.onrender.com/login', {
+      username: email,
+      password
+    }).then(loginResponse => {
+      res.json({
+        message: 'User registered and logged in',
+        access_token: loginResponse.data.access_token,
+        id_token: loginResponse.data.id_token,
+        expires_in: loginResponse.data.expires_in
+      });
+    }).catch(loginError => {
+      res.status(400).json({ error: loginError.response?.data || 'Login after registration failed' });
+    })
   } catch (err) {
     res.status(400).json({ error: err.response?.data || 'Registration failed' });
   }
+});
+
+app.get('/register', (req, res) => {
+  res.render('register', { title: 'Register Form' });
 });
 
 // ----------------------
