@@ -25,10 +25,6 @@ const {
 // ----------------------
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  console.log('====================================');
-  console.log(username);
-  console.log(password);
-  console.log('====================================');
 
   try {
     const response = await axios.post(`https://${AUTH0_DOMAIN}/oauth/token`, {
@@ -123,8 +119,16 @@ function getKey(header, callback) {
   });
 }
 
-app.post('/validate-token', (req, res) => {
-  const { token } = req.body;
+app.get('/validate-token', (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  // Check if header is present and formatted correctly
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ valid: false, error: 'Missing or malformed Authorization header' });
+  }
+
+  // Extract token from header
+  const token = authHeader.split(' ')[1];
 
   jwt.verify(
     token,
@@ -135,10 +139,6 @@ app.post('/validate-token', (req, res) => {
       algorithms: ['RS256']
     },
     (err, decoded) => {
-      console.log('====================================');
-      console.log('err ---> ', err);
-      console.log('decoded ---> ', decoded);
-      console.log('====================================');
       if (err) return res.status(401).json({ valid: false, error: err.message });
       res.json({ valid: true, decoded });
     }
